@@ -7,7 +7,7 @@ const UpdateMovie = props => {
         title: '',
         director: '',
         metascore: '',
-        stars: ['joe bob', 'frank']
+        stars: []
     })
 
     console.log(movieToUpdate)
@@ -23,16 +23,25 @@ const UpdateMovie = props => {
     const handleChanges = e => {
         setMovieToUpdate({
             ...movieToUpdate,
-            [e.target.name]: e.target.value
+            [e.target.name]: e.target.type === 'number' ? +e.target.value : e.target.value
         })
     }
+
+    const handleStars = index => e => {
+        setMovieToUpdate({
+            ...movieToUpdate,
+            stars: movieToUpdate.stars.map((star, starIndex) => {
+                return starIndex === index ? e.target.value : star;
+            })
+        });
+    };
 
     const updateMovie = e => {
         e.preventDefault();
         axios
             .put(`http://localhost:5000/api/movies/${movieToUpdate.id}`, movieToUpdate)
             .then(res => {
-                setMovieToUpdate([{}])
+                // setMovieToUpdate({})
                 props.history.push(`/`)
             })
             .catch(err => console.log(err.response))
@@ -62,7 +71,7 @@ const UpdateMovie = props => {
                 <div className="movie-metascore">
                     Metascore: <strong>
                         <input
-                            type="text"
+                            type="number"
                             name="metascore"
                             onChange={handleChanges}
                             value={movieToUpdate.metascore}
@@ -70,40 +79,21 @@ const UpdateMovie = props => {
                     </strong>
                 </div>
 
-                {/* <h3>Actors</h3> */}
-
-                {movieToUpdate.stars.map(i => (
+                <h3>Actors</h3>
+                {movieToUpdate.stars.map((i, index) => (
                     <input
                         type="text"
                         name="stars"
-                        onChange={handleChanges}
-                        value={i.index}
+                        onChange={handleStars(index)}
+                        value={i}
                         placeholder="stars"
+                        key={index}
                     />
                 ))}
-
                 <button> Update</button>
 
             </form>
         </div >
-
-
-        // <div className="movie-card">
-        //   <h2>{title}</h2>
-        //   <div className="movie-director">
-        //     Director: <em>{director}</em>
-        //   </div>
-        //   <div className="movie-metascore">
-        //     Metascore: <strong>{metascore}</strong>
-        //   </div>
-        //   <h3>Actors</h3>
-
-        //   {stars.map(star => (
-        //     <div key={star} className="movie-star">
-        //       {star}
-        //     </div>
-        //   ))}
-        // </div>
     );
 };
 
